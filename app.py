@@ -34,6 +34,7 @@ def resize_image(image, target_size):
 
 
 def set_preview(file_path):
+    image_name.set(file_path)
     im = PIL.Image.open(file_path)
     if im.height > PREVIEW_MAX_SIZE or im.width > PREVIEW_MAX_SIZE:
         im = resize_image(im, PREVIEW_MAX_SIZE)
@@ -47,7 +48,6 @@ def get_open_file():
     file = filedialog.askopenfilename(initialdir=home, title="Select image",
                                       filetypes=[('image files', ('.png', '.jpg'))])
     if file != '':
-        image_name.set(file)
         label_file_name.config(text=file)
         set_preview(file)
 
