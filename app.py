@@ -57,14 +57,17 @@ def get_open_file():
 
 def get_online_file(url):
     im_response = requests.get(url, stream=True)
+    with open(TEMP_ONLINE_IMAGE, 'wb') as file:
+        shutil.copyfileobj(im_response.raw, file)
+    del im_response
     try:
-        with open(TEMP_ONLINE_IMAGE, 'wb') as file:
-            shutil.copyfileobj(im_response.raw, file)
-        del im_response
+        im_test = PIL.Image.open(TEMP_ONLINE_IMAGE)
         label_file_name.config(text=TEMP_ONLINE_IMAGE)
         set_preview(TEMP_ONLINE_IMAGE)
-    except TypeError:
-        print(f'No valid image found at url {url}.')
+        del im_test
+    except IOError:
+        print(f'No valid image found at url {url}, falling back to local demo image.')
+        set_preview('demo/demo_faces.jpg')
 
 
 window = tk.Tk()
@@ -108,5 +111,6 @@ label_preview_image.pack()
 
 
 if __name__ == '__main__':
-    set_preview('demo/demo_faces.jpg')
+    # set_preview('demo/demo_faces.jpg')
+    get_online_file('https://mymodernmet.com/wp/wp-content/uploads/2019/09/100k-ai-faces-2.file')
     window.mainloop()
