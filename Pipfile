@@ -10,6 +10,7 @@ opencv-python = "*"
 cmake = "*"
 dlib = "*"
 pillow = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"

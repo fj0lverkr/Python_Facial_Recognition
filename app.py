@@ -1,6 +1,8 @@
 import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
+import requests
+import shutil
 from tkinter import ttk, filedialog
 from pathlib import Path
 
@@ -8,6 +10,7 @@ from processors.Image_Processor import ImageProcessor
 
 PREVIEW_MAX_SIZE = 500
 WINDOW_START_SIZE = (600, 480)
+TEMP_ONLINE_IMAGE = 'temp/online_image.jpg'
 
 
 def process_image():
@@ -50,6 +53,18 @@ def get_open_file():
     if file != '':
         label_file_name.config(text=file)
         set_preview(file)
+
+
+def get_online_file(url):
+    im_response = requests.get(url, stream=True)
+    try:
+        with open(TEMP_ONLINE_IMAGE, 'wb') as file:
+            shutil.copyfileobj(im_response.raw, file)
+        del im_response
+        label_file_name.config(text=TEMP_ONLINE_IMAGE)
+        set_preview(TEMP_ONLINE_IMAGE)
+    except TypeError:
+        print(f'No valid image found at url {url}.')
 
 
 window = tk.Tk()
