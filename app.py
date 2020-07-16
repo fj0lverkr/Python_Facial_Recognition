@@ -55,7 +55,8 @@ def get_open_file():
         set_preview(file)
 
 
-def get_online_file(url):
+def get_online_file():
+    url = entry_url.get()
     im_response = requests.get(url, stream=True)
     with open(TEMP_ONLINE_IMAGE, 'wb') as file:
         shutil.copyfileobj(im_response.raw, file)
@@ -76,6 +77,7 @@ screen_height = window.winfo_screenheight()
 window.minsize(WINDOW_START_SIZE[0], WINDOW_START_SIZE[1])
 start_pos_y = int(screen_height/2 - WINDOW_START_SIZE[1]/2)
 start_pos_x = int(screen_width/2 - WINDOW_START_SIZE[0]/2)
+entry_url = tk.StringVar(window)
 image_name = tk.StringVar(window)
 landmark_mode = tk.BooleanVar(window)
 landmark_mode.set(False)
@@ -84,11 +86,16 @@ window.title(string='Face detector')
 window.geometry(f'+{start_pos_x}+{start_pos_y}')
 
 main = ttk.Frame(window)
+frame_open_from_web = ttk.Frame(main)
+frame_or_text = ttk.Frame(main)
 frame_file_select = ttk.Frame(main)
 frame_options = ttk.Frame(main)
 frame_submit = ttk.Frame(main)
 frame_preview = ttk.Frame(main)
 
+textfield_url = ttk.Entry(frame_open_from_web, textvariable=entry_url)
+button_select_url = ttk.Button(frame_open_from_web, command=get_online_file, text='Load image from web')
+label_or = ttk.Label(frame_or_text, text='--OR--')
 button_open_file = ttk.Button(frame_file_select, command=get_open_file, text='Select image...')
 label_file_name = ttk.Label(frame_file_select)
 checkbutton_landmark_mode = ttk.Checkbutton(frame_options, text='Use landmarks in stead of boxes?', onvalue=True,
@@ -98,7 +105,12 @@ sep = ttk.Separator(main, orient=tk.HORIZONTAL)
 label_preview_image = tk.Label(frame_preview)
 
 main.pack(fill='both', expand=True)
-frame_file_select.pack(fill='x', padx=10, pady=(10, 2))
+frame_open_from_web.pack(fill='x', padx=10, pady=(10, 2))
+textfield_url.pack(side='left')
+button_select_url.pack(side='left', padx=(5, 0))
+frame_or_text.pack(fill='x', padx=10, pady=(2, 2))
+label_or.pack(side='left')
+frame_file_select.pack(fill='x', padx=10, pady=(2, 2))
 button_open_file.pack(side='left')
 label_file_name.pack(side='left')
 frame_options.pack(fill='x', padx=10, pady=(2, 2))
@@ -111,6 +123,5 @@ label_preview_image.pack()
 
 
 if __name__ == '__main__':
-    # set_preview('demo/demo_faces.jpg')
-    get_online_file('https://mymodernmet.com/wp/wp-content/uploads/2019/09/100k-ai-faces-2.file')
+    set_preview('demo/demo_faces.jpg')
     window.mainloop()
