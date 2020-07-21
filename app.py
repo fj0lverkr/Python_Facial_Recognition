@@ -6,6 +6,8 @@ import shutil
 from tkinter import ttk, filedialog
 from pathlib import Path
 
+from errors.custom_error_handler import Ntk
+from errors.custom_errors import NoImageAtURLError
 from processors.Image_Processor import ImageProcessor
 
 PREVIEW_MAX_SIZE = 500
@@ -62,16 +64,15 @@ def get_online_file():
         shutil.copyfileobj(im_response.raw, file)
     del im_response
     try:
-        im_test = PIL.Image.open(TEMP_ONLINE_IMAGE)
+        PIL.Image.open(TEMP_ONLINE_IMAGE)
         label_file_name.config(text=TEMP_ONLINE_IMAGE)
         set_preview(TEMP_ONLINE_IMAGE)
-        del im_test
-    except IOError:
-        print(f'No valid image found at url {url}, falling back to local demo image.')
+    except NoImageAtURLError as e:
         set_preview('demo/demo_faces.jpg')
+        print(f'No image found at url {url}, no temp image created.\n{e.args[0]}\nFalling back to demo image.')
 
 
-window = tk.Tk()
+window = Ntk()
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
 window.minsize(WINDOW_START_SIZE[0], WINDOW_START_SIZE[1])
