@@ -7,8 +7,8 @@ from tkinter import ttk, filedialog
 from pathlib import Path
 
 from errors.custom_error_handler import Ntk
-from errors.custom_errors import NoImageAtURLError
-from processors.Image_Processor import ImageProcessor
+from errors.custom_errors import NoImageAtURLError, InvalidURLError
+from processors.image_processor import ImageProcessor
 
 PREVIEW_MAX_SIZE = 500
 WINDOW_START_SIZE = (600, 480)
@@ -59,7 +59,20 @@ def get_open_file():
 
 def get_online_file():
     url = entry_url.get()
-    im_response = requests.get(url, stream=True)
+    try:
+        im_response = requests.get(url, stream=True)
+    except requests.exceptions.ConnectionError:
+        set_preview('demo/demo_faces.jpg')
+        raise InvalidURLError(f'Could not get request for {url}\nFalling back to demo image.')
+    except requests.exceptions.MissingSchema:
+        set_preview('demo/demo_faces.jpg')
+        raise InvalidURLError(f'Missing schema in url {url}, did you mean http://{url}?\nFalling back to demo image.')
+    except requests.exceptions.InvalidSchema:
+        set_preview('demo/demo_faces.jpg')
+        raise InvalidURLError(f'Invalid schema in url {url}\nFalling back to demo image.')
+    except requests.exceptions.InvalidURL:
+        set_preview('demo/demo_faces.jpg')
+        raise InvalidURLError(f'Invalid schema in url {url}\nFalling back to demo image.')
     with open(TEMP_ONLINE_IMAGE, 'wb') as file:
         shutil.copyfileobj(im_response.raw, file)
     del im_response
@@ -67,9 +80,9 @@ def get_online_file():
         PIL.Image.open(TEMP_ONLINE_IMAGE)
         label_file_name.config(text=TEMP_ONLINE_IMAGE)
         set_preview(TEMP_ONLINE_IMAGE)
-    except NoImageAtURLError as e:
+    except PIL.Image.UnidentifiedImageError:
         set_preview('demo/demo_faces.jpg')
-        print(f'No image found at url {url}, no temp image created.\n{e.args[0]}\nFalling back to demo image.')
+        raise NoImageAtURLError(f'No image found at url {url}, no temp image created.\nFalling back to demo image.')
 
 
 window = Ntk()
